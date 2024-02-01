@@ -1,41 +1,37 @@
-//Посилання на форму
-const formRef = document.querySelector('.feedback-form');
-const LOCAL_KEY = 'feedback-form-state';
+const STORAGE_KEY = 'feedback-form-state';
+const form = document.querySelector('.feedback-form');
+const textarea = form.elements.message;
+const email = form.elements.email;
 
-//Значення інпутів з Locale Storage, якщо немає - пусті рядки.
-const userInputs = JSON.parse(localStorage.getItem(LOCAL_KEY)) || {};
+form.addEventListener('submit', onFormSubmit);
+form.addEventListener('input', onFormInput);
 
-formRef.elements.email.value = userInputs.email || '';
-formRef.elements.message.value = userInputs.message || '';
-//Прослуховування форми і зберігання в Locale Storage
-formRef.addEventListener('input', formChange);
+function onFormInput(event) {
+  const formImput = {};
+  formImput.email = event.currentTarget.elements.email.value.trim();
+  formImput.text = event.currentTarget.elements.message.value.trim();
 
-function formChange(e) {
-  e.preventDefault();
-
-  userInputs[e.target.name] = e.target.value.trim();
-
-  localStorage.setItem(LOCAL_KEY, JSON.stringify(userInputs));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(formImput));
 }
 
-//Прослуховування кнопки і очищення Locale Storage
-formRef.addEventListener('submit', formSubmit);
+function savedFormText() {
+  const savemessage = JSON.parse(localStorage.getItem(STORAGE_KEY));
+  if (savemessage) {
+    textarea.value = savemessage.text.trim();
+    email.value = savemessage.email.trim();
+  }
+}
+savedFormText();
 
-function formSubmit(e) {
-  e.preventDefault();
-
-  if (
-    formRef.elements.email.value === '' ||
-    formRef.elements.message.value === ''
-  ) {
-    alert('Заповність всі поля');
+function onFormSubmit(event) {
+  event.preventDefault();
+  const email = event.currentTarget.elements.email.value.trim();
+  const text = event.currentTarget.elements.message.value.trim();
+  if (email === '' || text === '') {
+    alert('Please fill in all the fields!');
     return;
   }
-
-  console.log(userInputs);
-
-  formRef.elements.email.value = '';
-  formRef.elements.message.value = '';
-
-  localStorage.removeItem(LOCAL_KEY);
+  console.log(JSON.parse(localStorage.getItem(STORAGE_KEY)));
+  localStorage.removeItem(STORAGE_KEY); //очищаємо сховище
+  event.currentTarget.reset(); //очищення поля форми
 }
